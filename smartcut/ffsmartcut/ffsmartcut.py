@@ -75,7 +75,9 @@ def cut_video(
     if session:
         seg = next((s for s in session.segments if s.id == index), None)
         if seg:
-            seg.predict_filename(out_dir)
+            if not session.video_name:
+                session.video_name = Path(video_path).stem
+            seg.predict_filename(out_dir, session.video_name)
             if seg.output_path is None:
                 raise ValueError("Segment output_path non défini avant conversion en Path")
             out_path = Path(seg.output_path)
