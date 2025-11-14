@@ -58,6 +58,7 @@ class Segment:
     filesize_mb: float | None = None
     confidence: float | None = None
     filename_predicted: str | None = None
+    ai_model: str | None = None
     output_path: str | None = None
     error: str | None = None
     merged_from: list[str] = field(default_factory=list)  # 🆕 trace les UID sources

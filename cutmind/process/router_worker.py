@@ -10,17 +10,21 @@ Envoie automatiquement les segments 'validated' mais hors standard
 - Met à jour les statuts dans la base (segments + vidéos)
 """
 
+from datetime import datetime
 from pathlib import Path
 
 from comfyui_router.models_cr.processor import VideoProcessor
 from cutmind.db.repository import CutMindRepository
-from cutmind.models.db_models import Segment, Video
+from cutmind.models_cm.db_models import Segment, Video
 from cutmind.process.file_mover import FileMover
-from shared.utils.config import CM_NB_VID_ROUTER, INPUT_DIR, OUTPUT_DIR
+from shared.models.config_manager import CONFIG
+from shared.utils.config import CM_NB_VID_ROUTER, COLOR_RED, COLOR_RESET, INPUT_DIR, OUTPUT_DIR
 from shared.utils.logger import get_logger
 from shared.utils.trash import delete_files
 
 logger = get_logger(__name__)
+
+forbidden_hours = CONFIG.comfyui_router["orchestrator"].get("router_forbidden_hours", [])
 
 
 class RouterWorker:
@@ -78,17 +82,26 @@ class RouterWorker:
                         seg.status = "in_router"
                         seg.source_flow = "comfyui_router"
                         self.repo.update_segment_validation(seg, conn)
+
+                for _seg, _src, dst in prepared:
+                    # --- DÉCISION INTELLIGENTE ---
+                    current_hour = datetime.now().hour
+                    router_allowed = current_hour not in forbidden_hours
+                    if router_allowed:
                         delete_files(path=OUTPUT_DIR, ext="*.png")
                         delete_files(path=OUTPUT_DIR, ext="*.mp4")
-
-                        # ⚙️ Lancer le traitement ComfyUI Router
                         repo = CutMindRepository()
                         processor = VideoProcessor(cutmind_repo=repo)
                         processor.process(Path(dst))
                         processed_count += 1
+                    else:
+                        logger.info(
+                            f"{COLOR_RED}🌙 Plage horaire silencieuse — Router désactivé (SmartCut forcé){COLOR_RESET}"
+                        )
+                        return processed_count
 
-                    video.status = "router_done"
-                    self.repo.update_video(video, conn)
+                video.status = "enhanced"
+                self.repo.update_video(video, conn)
 
                 logger.info("📬 Vidéo %s envoyée vers Router (%d segments).", video.uid, len(prepared))
 

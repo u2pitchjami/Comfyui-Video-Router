@@ -23,8 +23,8 @@ from pymysql.connections import Connection
 
 from cutmind.db.db_connection import db_conn, get_dict_cursor
 from cutmind.db.db_utils import safe_execute_dict
-from cutmind.models.cursor_protocol import DictCursorProtocol
-from cutmind.models.db_models import Segment, Video
+from cutmind.models_cm.cursor_protocol import DictCursorProtocol
+from cutmind.models_cm.db_models import Segment, Video
 from shared.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -103,9 +103,9 @@ class CutMindRepository:
                 uid, video_id, start, end, duration, status,
                 confidence, description, fps, resolution, codec,
                 bitrate, filesize_mb, filename_predicted, output_path,
-                source_flow, processed_by
+                source_flow, processed_by, ai_model
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 seg.uid,
@@ -125,6 +125,7 @@ class CutMindRepository:
                 seg.output_path,
                 seg.source_flow,
                 seg.processed_by,
+                seg.ai_model,
             ),
         )
         seg_id = cur.lastrowid
@@ -157,6 +158,12 @@ class CutMindRepository:
                 (segment_id, kw_id),
             )
         logger.debug("🏷️ %d mots-clés insérés pour segment_id=%d", len(keywords), segment_id)
+
+    def insert_keywords_standalone(self, segment_id: int, keywords: list[str]) -> None:
+        with db_conn() as conn:
+            with get_dict_cursor(conn) as cur:
+                self.insert_keywords_for_segment(cur, segment_id, keywords)
+            conn.commit()
 
     # -------------------------------------------------------------
     # 🔎 Récupération d’une vidéo complète (segments + keywords)
@@ -251,6 +258,26 @@ class CutMindRepository:
                     return None
                 return Segment(**{k: row[k] for k in row if k in Segment.__annotations__})
 
+    def get_segments_by_category(self, category: str) -> list[Segment]:
+        """
+        Récupère tous les segments 'enhanced' d'une catégorie donnée.
+        """
+        with db_conn() as conn:
+            with get_dict_cursor(conn) as cur:
+                safe_execute_dict(
+                    cur,
+                    """
+                    SELECT s.*
+                    FROM segments s
+                    WHERE s.status = 'enhanced'
+                    AND s.category = %s
+                    ORDER BY s.created_at DESC
+                    """,
+                    (category,),
+                )
+                rows = cur.fetchall()
+                return [Segment.from_row(row) for row in rows]
+
     # -------------------------------------------------------------
     # 🏷️ Récupération des mots-clés d’un segment
     # -------------------------------------------------------------
@@ -298,6 +325,34 @@ class CutMindRepository:
                 rows = cur.fetchall()
                 return [row["uid"] for row in rows if "uid" in row]
 
+    def get_standard_videos(self, limit_videos: int = 10) -> list[str]:
+        """
+        Retourne les UID de vidéos 'validated' dont tous les segments sont déjà en 1080p 60fps.
+        """
+        with db_conn() as conn:
+            with get_dict_cursor(conn) as cur:
+                safe_execute_dict(
+                    cur,
+                    """
+                    SELECT DISTINCT v.uid
+                    FROM videos v
+                    JOIN segments s ON v.id = s.video_id
+                    WHERE
+                        v.status = 'validated'
+                        AND s.status = 'validated'
+                        AND (
+                            CAST(SUBSTRING_INDEX(s.resolution, 'x', 1) AS UNSIGNED) = 1920
+                            AND CAST(SUBSTRING_INDEX(s.resolution, 'x', -1) AS UNSIGNED) = 1080
+                            AND s.fps = 60.0
+                        )
+                    ORDER BY RAND()
+                    LIMIT %s
+                    """,
+                    (limit_videos,),
+                )
+                rows = cur.fetchall()
+                return [row["uid"] for row in rows if "uid" in row]
+
     # -------------------------------------------------------------
     # 🔄 Mise à jour d’un segment
     # -------------------------------------------------------------
@@ -315,6 +370,9 @@ class CutMindRepository:
                             confidence=%s,
                             description=%s,
                             output_path=%s,
+                            category=%s,
+                            ai_model=%s,
+                            tags=%s,
                             last_updated=NOW()
                         WHERE uid=%s
                         """,
@@ -324,6 +382,9 @@ class CutMindRepository:
                             seg.confidence,
                             seg.description,
                             seg.output_path,
+                            seg.category,
+                            seg.ai_model,
+                            seg.tags,
                             seg.uid,
                         ),
                     )
@@ -346,6 +407,9 @@ class CutMindRepository:
                         confidence=%s,
                         description=%s,
                         output_path=%s,
+                        category=%s,
+                        ai_model=%s,
+                        tags=%s,
                         last_updated=NOW()
                     WHERE uid=%s
                     """,
@@ -355,6 +419,9 @@ class CutMindRepository:
                         seg.confidence,
                         seg.description,
                         seg.output_path,
+                        seg.category,
+                        seg.ai_model,
+                        seg.tags,
                         seg.uid,
                     ),
                 )
@@ -382,6 +449,8 @@ class CutMindRepository:
                         duration=%s,
                         status=%s,
                         source_flow=%s,
+                        processed_by=%s,
+                        tags=%s,
                         last_updated=NOW()
                     WHERE uid=%s
                     """,
@@ -394,6 +463,8 @@ class CutMindRepository:
                         seg.duration,
                         seg.status,
                         seg.source_flow,
+                        seg.processed_by,
+                        seg.tags,
                         seg.uid,
                     ),
                 )

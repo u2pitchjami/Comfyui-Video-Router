@@ -16,9 +16,18 @@ from transformers import (
 
 from shared.models.config_manager import CONFIG
 from shared.utils.logger import get_logger
+from smartcut.analyze.analyze_torch_utils import (
+    get_model_precision,
+    vram_gpu,
+)
+from smartcut.analyze.analyze_utils import (
+    estimate_safe_batch_size,
+)
 from smartcut.gen_keywords.gen_utils import get_free_vram_gb
 
 logger = get_logger(__name__)
+
+SAFETY_MARGIN: float = CONFIG.smartcut["analyse_segment"]["safety_margin_gb"]
 
 
 def resolve_dtype(dtype_str: str) -> TorchDType:
@@ -51,7 +60,7 @@ DEVICE_MAP_CPU = CONFIG.smartcut["generate_keywords"]["device_map_cpu"]
 ATTN_IMPLEMENTATION = CONFIG.smartcut["generate_keywords"]["attn_implementation"]
 
 
-def load_qwen_model(force_reload: bool = False) -> tuple[ProcessorMixin, PreTrainedModel]:
+def load_qwen_model(force_reload: bool = False) -> tuple[ProcessorMixin, PreTrainedModel, str]:
     """
     Charge dynamiquement le modèle Qwen3-VL (4B ou 8B) en fonction de la VRAM disponible.
 
@@ -127,8 +136,24 @@ def load_qwen_model(force_reload: bool = False) -> tuple[ProcessorMixin, PreTrai
         except Exception as debug_err:
             logger.warning(f"⚠️ Impossible d'inspecter les paramètres : {debug_err}")
 
-        return processor, model
+        return processor, model, model_name
 
     except Exception as e:
         logger.error(f"💥 Erreur lors du chargement du modèle Qwen : {e}")
         raise
+
+
+def load_and_batches() -> tuple[ProcessorMixin, PreTrainedModel, str, int]:
+    """
+    lance le modèle et définit la taille du batches
+    """
+    try:
+        processor, model, model_name = load_qwen_model()
+        free_gb, total_gb = vram_gpu()
+        precision = get_model_precision(model)
+        batch_size = estimate_safe_batch_size(free_gb, total_gb, precision, SAFETY_MARGIN)
+        logger.info(f"🧠 Batch size estimé dynamiquement : {batch_size}")
+    except Exception as e:
+        logger.error(f"💥 Erreur lors du chargement du modèle Qwen : {e}")
+        raise
+    return processor, model, model_name, batch_size

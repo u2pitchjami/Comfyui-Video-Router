@@ -47,6 +47,12 @@ class Segment:
     def from_row(cls, row: dict[str, Any]) -> Segment:
         allowed = cls.__annotations__.keys()
         data = {k: row[k] for k in row if k in allowed}
+
+        # Sécurise les listes pour éviter les None
+        data["tags"] = data.get("tags") or []
+        data["keywords"] = data.get("keywords") or []
+        data["merged_from"] = data.get("merged_from") or []
+
         return cls(**data)
 
     # --- Prépare les valeurs pour un INSERT/UPDATE
@@ -54,6 +60,14 @@ class Segment:
         data = self.__dict__.copy()
         data.pop("keywords", None)
         return data
+
+    def add_tag(self, tag: str) -> None:
+        """Ajoute un tag sans doublon."""
+        if tag not in self.tags:
+            self.tags.append(tag)
+
+    def has_tag(self, tag: str) -> bool:
+        return tag in self.tags
 
 
 # -------------------------------------------------------------

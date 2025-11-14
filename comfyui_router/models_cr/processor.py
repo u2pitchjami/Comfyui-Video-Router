@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 import shutil
 
+from pymediainfo import MediaInfo
+
+from comfyui_router.comfyui.comfyui_command import comfyui_path
 from comfyui_router.ffmpeg.deinterlace import ensure_deinterlaced
-from comfyui_router.ffmpeg.ffmpeg_command import convert_to_60fps, detect_nvenc_available, get_fps
+from comfyui_router.ffmpeg.ffmpeg_command import convert_to_60fps, detect_nvenc_available, get_fps, get_resolution
 from comfyui_router.ffmpeg.smart_recut_hybrid import smart_recut_hybrid
 from comfyui_router.models_cr.comfy_workflow_manager import ComfyWorkflowManager
 from comfyui_router.models_cr.output_manager import OutputManager
 from comfyui_router.models_cr.videojob import VideoJob
 from comfyui_router.output.output import cleanup_outputs
+from cutmind.db.data_utils import format_resolution
 from cutmind.db.repository import CutMindRepository
+from cutmind.process.file_mover import FileMover
 from shared.models.config_manager import CONFIG
 from shared.utils.config import OK_DIR, OUTPUT_DIR, TRASH_DIR
 from shared.utils.logger import get_logger
@@ -25,6 +29,8 @@ logger = get_logger(__name__)
 FORCE_DEINTERLACE = CONFIG.comfyui_router["processor"]["force_deinterlace"]
 CLEANUP = CONFIG.comfyui_router["processor"]["cleanup"]
 PURGE_DAYS = CONFIG.comfyui_router["processor"]["purge_days"]
+DELTA_DURATION = CONFIG.comfyui_router["processor"]["delta_duration"]
+RATIO_DURATION = CONFIG.comfyui_router["processor"]["ratio_duration"]
 
 
 class VideoProcessor:
@@ -49,6 +55,7 @@ class VideoProcessor:
         video_path = ensure_deinterlaced(video_path, use_cuda=cuda, cleanup=CLEANUP)
         video_path = smart_recut_hybrid(video_path, use_cuda=cuda, cleanup=CLEANUP)
         job.path = Path(video_path)
+        job.comfyui_path = comfyui_path(full_path=video_path)
         workflow = self.workflow_mgr.prepare_workflow(job)
         if not workflow:
             return
@@ -64,17 +71,21 @@ class VideoProcessor:
         if not job.output_file:
             return
         job.fps_out = get_fps(job.output_file)
+        job.resolution_out = get_resolution(job.output_file)
         final_output = OK_DIR / job.output_file.name
         logger.debug(f"✅ OK_DIR : {OK_DIR}, TRASH_DIR : {TRASH_DIR}")
         logger.debug(f"✅ Fichier de sortie trouvé : {final_output}")
 
         if job.fps_out > 60:
             temp_output = final_output.with_name(f"{job.path.stem}_60fps.mp4")
+            logger.debug(f"fps_out > 60 -> temp_output : {temp_output}")
             if convert_to_60fps(job.output_file, temp_output):
                 job.output_file.unlink()
                 final_output = temp_output
+                logger.debug(f"fps_out > 60 -> final_output : {final_output}")
         elif job.fps_out < 59:
             retry_path = job.path.parent / f"{job.path.name}"
+            logger.debug(f"fps_out < 60 -> retry_path : {retry_path}")
             self._notify_cutmind(job, retry_path, status="rejected")
             # shutil.move(job.output_file, retry_path)
             self.logger.info(f"↩️ Rejet : {job.path.name} (FPS {job.fps_out:.2f})")
@@ -88,61 +99,89 @@ class VideoProcessor:
         purge_old_trash(trash_root=TRASH_DIR, days=PURGE_DAYS)
         self.logger.info(f"🧹 Nettoyage des fichiers intermédiaires terminé pour {video_path.stem}")
         self.logger.info(f"✅ Terminé : {final_output.name}")
+        logger.debug(f"for _notif -> final_output : {final_output}")
         self._notify_cutmind(job, final_output, status="enhanced")
 
     def _notify_cutmind(self, job: VideoJob, final_output: Path, status: str, replace_original: bool = True) -> None:
-        """
-        Informe CutMind qu'un segment a été traité par ComfyUI Router
-        et, selon la configuration, remplace le fichier original.
-
-        Args:
-            job: Objet VideoJob utilisé par Router (contient infos du segment)
-            final_output: Fichier généré par Router
-            status: "enhanced", "rejected", "error", etc.
-            replace_original: Si True, écrase le fichier d'origine (seg.output_path)
-        """
         if not self.repo:
-            return  # Pas de repo CutMind connecté
+            return
 
         try:
-            seg_uid = job.path.stem.split("_")[0]  # adapte selon ton schéma de nommage
+            seg_uid = job.path.stem.split("_")[2]
             seg = self.repo.get_segment_by_uid(seg_uid)
+            logger.debug(f"_notify_cutmind seg_uid : {seg_uid}")
 
             if not seg:
-                logger.warning("⚠️ Segment UID introuvable dans la base CutMind : %s", seg_uid)
+                logger.warning("⚠️ Segment UID introuvable : %s", seg_uid)
                 return
 
-            # 🧩 1️⃣ Si demandé → on remplace physiquement le fichier d'origine
             if replace_original:
                 if not seg.output_path:
                     logger.error("❌ Segment sans chemin de sortie défini : %s", seg.uid)
                     return
+
                 target_path = Path(seg.output_path)
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                logger.debug(f"🔄 Remplacement direct par copie transactionnelle : {final_output} → {target_path}")
+
+                # --- ⚠️ Vérification durée avant remplacement ---
                 try:
-                    target_path.parent.mkdir(parents=True, exist_ok=True)
-                    os.replace(final_output, target_path)  # overwrite safe
-                    logger.info("📦 Fichier remplacé : %s → %s", final_output.name, target_path)
+                    media_info = MediaInfo.parse(final_output)
+                    duration_real = None
+                    for track in media_info.tracks:
+                        if track.track_type == "Video" and track.duration:
+                            duration_real = round(track.duration / 1000, 3)
+                            break
+
+                    if duration_real and seg.duration:
+                        expected = round(seg.duration, 3)
+                        delta = abs(duration_real - expected)
+                        ratio = delta / expected if expected else 0
+
+                        if delta > DELTA_DURATION or ratio > RATIO_DURATION:
+                            logger.warning(
+                                "⏱️ ⚠️ Écart de durée segment %s : attendu=%.2fs / réel=%.2fs (∆ %.2fs, %.1f%%)",
+                                seg.uid,
+                                expected,
+                                duration_real,
+                                delta,
+                                ratio * 100,
+                            )
+                            if "duration_warning" not in seg.tags:
+                                seg.add_tag("duration_warning")
+                    elif not duration_real:
+                        logger.warning("⏱️ Impossible de lire la durée de sortie pour %s", final_output)
+
+                except Exception as dur_err:
+                    logger.error("❌ Erreur analyse durée finale : %s", final_output)
+                    logger.exception(str(dur_err))
+
+                # --- 🛠️ Remplacement
+                try:
+                    FileMover.safe_replace(final_output, target_path)
+                    logger.info("📦 Fichier remplacé (via safe_copy) : %s → %s", final_output.name, target_path)
+
                 except Exception as move_err:
                     logger.error("❌ Impossible de déplacer le fichier : %s → %s", final_output, target_path)
                     logger.exception(str(move_err))
-                    return  # on stoppe avant d'update la DB
+                    return
 
-                # Validation après déplacement
                 if not target_path.exists():
                     logger.error("❌ Fichier manquant après remplacement : %s", target_path)
                     return
-            else:
-                logger.info("ℹ️ Remplacement original désactivé — fichier traité conservé dans OK_DIR")
 
-            # 🧩 2️⃣ Mise à jour des métadonnées du segment
+            else:
+                logger.info("ℹ️ Remplacement original désactivé — fichier conservé dans OK_DIR")
+
+            # --- Mise à jour DB
             seg.status = status
             seg.source_flow = "comfyui_router"
             seg.fps = getattr(job, "fps_out", None)
-            seg.resolution = getattr(job, "resolution", None)
+            seg.resolution = format_resolution(job.resolution_out)
+            seg.processed_by = job.workflow_name or "comfyui_router"
             if not replace_original:
                 seg.output_path = str(final_output)
 
-            # 🧩 3️⃣ Mise à jour DB (postprocess)
             self.repo.update_segment_postprocess(seg)
             logger.info("🧠 CutMind synchronisé pour segment %s (%s)", seg.uid, status)
 

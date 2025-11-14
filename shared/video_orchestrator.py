@@ -17,12 +17,27 @@ import time
 
 import torch
 
+from cutmind.check.enhanced import check_enhanced_segments
+from cutmind.check.secure_in_router import check_secure_in_router
 from cutmind.db.repository import CutMindRepository
-from cutmind.imports.import_segments_from_csv import import_segments
 from cutmind.imports.importer import import_all_smartcut_jsons
+from cutmind.manual.update_from_csv import update_segments_csv
+from cutmind.process.already_enhanced import process_standard_videos
 from cutmind.process.router_worker import RouterWorker
 from shared.models.config_manager import CONFIG
-from shared.utils.config import CM_NB_VID_ROUTER, IMPORT_DIR_SC, OUPUT_DIR_SC
+from shared.utils.config import (
+    CM_NB_VID_ROUTER,
+    COLOR_BLUE,
+    COLOR_CYAN,
+    COLOR_GREEN,
+    COLOR_PURPLE,
+    COLOR_RED,
+    COLOR_RESET,
+    COLOR_YELLOW,
+    IMPORT_DIR_SC,
+    JSON_STATES_DIR_SC,
+    OUPUT_DIR_SC,
+)
 from shared.utils.logger import get_logger
 from smartcut.lite.smartcut_lite import lite_cut
 from smartcut.models_sc.smartcut_model import SmartCutSession
@@ -68,7 +83,7 @@ def auto_clean_gpu(max_wait_sec: int = 30) -> None:
 def process_smartcut_video(video_path: Path) -> None:
     """Flow SmartCut complet (vidéo non découpée)."""
     try:
-        state_path = OUPUT_DIR_SC / f"{video_path.stem}.smartcut_state.json"
+        state_path = JSON_STATES_DIR_SC / f"{video_path.stem}.smartcut_state.json"
         session = SmartCutSession.load(str(state_path))
 
         if session and session.status == "cut":
@@ -82,14 +97,6 @@ def process_smartcut_video(video_path: Path) -> None:
         logger.info(f"🚀 SmartCut (complet) : {video_path.name}")
         multi_stage_cut(video_path=video_path, out_dir=OUPUT_DIR_SC, use_cuda=USE_CUDA)
 
-        # 🔹 Import automatique dans CutMind
-        logger.info("📥 Import SmartCut JSONs vers CutMind...")
-        import_all_smartcut_jsons()
-
-        # 🔹 Import CSV automatique dans CutMind
-        logger.info("📥 Import SmartCut CSVs vers CutMind...")
-        import_segments()
-
     except Exception as exc:
         logger.error(f"💥 Erreur SmartCut {video_path.name} : {exc}")
         auto_clean_gpu()
@@ -100,14 +107,6 @@ def process_smartcut_folder(folder_path: Path) -> None:
     try:
         logger.info(f"🚀 SmartCut Lite : dossier {folder_path.name}")
         lite_cut(directory_path=folder_path)
-
-        # 🔹 Import automatique dans CutMind
-        logger.info("📥 Import SmartCut JSONs vers CutMind...")
-        import_all_smartcut_jsons()
-
-        # 🔹 Import CSV automatique dans CutMind
-        logger.info("📥 Import SmartCut CSVs vers CutMind...")
-        import_segments()
 
     except Exception as exc:
         logger.error(f"💥 Erreur SmartCut Lite {folder_path.name} : {exc}")
@@ -144,15 +143,6 @@ def process_smartcut_batch(videos: list[Path], dirs: list[Path], max_items: int)
 # 🎬 Orchestrateur principal
 # ============================================================
 
-# 🎨 ANSI Colors
-COLOR_RESET = "\033[0m"
-COLOR_BLUE = "\033[94m"
-COLOR_GREEN = "\033[92m"
-COLOR_YELLOW = "\033[93m"
-COLOR_RED = "\033[91m"
-COLOR_PURPLE = "\033[95m"
-COLOR_CYAN = "\033[96m"
-
 
 def orchestrate(priority: str = "smartcut") -> None:
     """
@@ -181,7 +171,7 @@ def orchestrate(priority: str = "smartcut") -> None:
         mode_label = f"{COLOR_CYAN}⚙️ Mode auto: ratio_smartcut={ratio_smartcut:.2f}{COLOR_RESET}"
 
     logger.info(mode_label)
-
+    check_secure_in_router()
     while True:
         try:
             cycle += 1
@@ -249,6 +239,15 @@ def orchestrate(priority: str = "smartcut") -> None:
             )
             logger.info(f"⏳ Pause {scan_interval}s avant le prochain scan.")
             time.sleep(scan_interval)
+            # 🔹 Import automatique dans CutMind
+            logger.info("📥 Import SmartCut JSONs vers CutMind...")
+            import_all_smartcut_jsons()
+
+            # 🔹 Import CSV automatique dans CutMind
+            logger.info("📥 Import SmartCut CSVs vers CutMind...")
+            update_segments_csv()
+            check_enhanced_segments(max_videos=1)
+            process_standard_videos(limit=1)
 
         except Exception as err:
             logger.exception(f"{COLOR_RED}💥 Erreur inattendue orchestrateur : {err}{COLOR_RESET}")

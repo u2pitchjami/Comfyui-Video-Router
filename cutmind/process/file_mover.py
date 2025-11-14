@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 import shutil
 
-from cutmind.models.db_models import Video
+from cutmind.models_cm.db_models import Video
 from shared.utils.config import CUTMIND_BASEDIR
 from shared.utils.logger import get_logger
 
@@ -119,3 +119,38 @@ class FileMover:
                     logger.debug("🧹 Fichier temporaire supprimé : %s", dst_temp)
             except Exception as cleanup_err:
                 logger.warning("⚠️ Échec nettoyage %s : %s", dst_temp, cleanup_err)
+
+    @staticmethod
+    def safe_replace(src: Path, dst: Path) -> None:
+        """
+        Remplace un fichier même entre systèmes de fichiers différents.
+        Copie le fichier source dans un temporaire sur le disque cible,
+        puis effectue un os.replace() atomique.
+        Supprime le fichier source après succès.
+        """
+        try:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            tmp_path = dst.with_suffix(dst.suffix + ".__moving__")
+
+            # Copie sécurisée (réutilise safe_copy)
+            FileMover.safe_copy(src, tmp_path)
+
+            # Remplacement atomique du temporaire vers la destination finale
+            os.replace(tmp_path, dst)
+
+            # Nettoyage du fichier source
+            if src.exists():
+                os.remove(src)
+
+            logger.info("✅ safe_replace: %s → %s", src, dst)
+
+        except Exception as err:
+            logger.error("❌ Erreur safe_replace %s → %s : %s", src, dst, err)
+            # Tentative de nettoyage du temporaire si échec
+            try:
+                if tmp_path.exists():
+                    tmp_path.unlink()
+                    logger.debug("🧹 Fichier temporaire supprimé : %s", tmp_path)
+            except Exception as cleanup_err:
+                logger.warning("⚠️ Échec nettoyage temporaire %s : %s", tmp_path, cleanup_err)
+            raise

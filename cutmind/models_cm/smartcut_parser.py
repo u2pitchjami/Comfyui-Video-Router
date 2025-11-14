@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, Field, ValidationError
 
-from cutmind.models.db_models import Segment, Video
+from cutmind.models_cm.db_models import Segment, Video
 from shared.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -36,6 +36,7 @@ class SmartcutSegment(BaseModel):
     confidence: float | None = None
     filename_predicted: str | None = None
     output_path: str | None = None
+    ai_model: str | None = None
     error: str | None = None
     merged_from: list[str] = Field(default_factory=list)
     fps: float | None = None
@@ -114,7 +115,7 @@ def parse_smartcut_json(data: dict[str, Any], filename: str) -> tuple[bool, Smar
 
 
 if TYPE_CHECKING:
-    from cutmind.models.smartcut_parser import SmartcutSessionBase
+    from cutmind.models_cm.smartcut_parser import SmartcutSessionBase
 
 
 # -------------------------------------------------------------------
@@ -163,6 +164,7 @@ def convert_json_to_video(session: SmartcutSessionBase) -> Video:
             filesize_mb=s.filesize_mb,
             filename_predicted=s.filename_predicted,
             output_path=s.output_path,
+            ai_model=s.ai_model,
             source_flow=session.origin or "smartcut",
             keywords=s.keywords or [],
         )

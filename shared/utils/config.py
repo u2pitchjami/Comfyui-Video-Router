@@ -107,6 +107,8 @@ WORKFLOW_DIR: Path = Path(get_path_required("WORKFLOW_DIR"))
 TRASH_DIR: Path = Path(get_str("TRASH_DIR", ".trash"))
 OK_DIR: Path = Path(get_str("OK_DIR", "truc"))
 COMFY_URL: str = get_required("COMFY_URL")
+HOST_ROOT: Path = Path(get_path_required("HOST_ROOT"))
+VISIBLE_ROOT: Path = Path(get_path_required("VISIBLE_ROOT"))
 
 WORKFLOW_MAP: dict[str, Path] = {
     "1080p": WORKFLOW_DIR / "Video-Upscaler-Next-Diffusion 1080p.json",
@@ -144,6 +146,9 @@ CSV_LOG_PATH = get_str("CSV_LOG_PATH")
 JSON_STATES = get_str("JSON_STATES", "/basedir/smart_cut/states")
 JSON_VALIDATED = get_str("JSON_VALIDATED", "/basedir/smart_cut/states/validated")
 MANUAL_JSON = get_str("MANUAL_JSON", "/basedir/smart_cut/states/manual_review")
+WORKDIR_CM = get_str("WORKDIR_CM", "/basedir/_work")
+
+CATEGORIES_RULES = Path(get_path_required("CATEGORIES_RULES"))
 
 MIN_CONFIDENCE = get_float("MIN_CONFIDENCE", 0.6)
 CM_NB_VID_ROUTER = get_int("CM_NB_VID_ROUTER", 1)
@@ -167,3 +172,16 @@ TRASH_DIR.mkdir(parents=True, exist_ok=True)
 TRASH_DIR_SC.mkdir(parents=True, exist_ok=True)
 ERROR_DIR_SC.mkdir(parents=True, exist_ok=True)
 Path(LOG_FILE_PATH).mkdir(parents=True, exist_ok=True)
+
+TEMP_COMPIL = Path(get_str("TEMP_COMPIL", ".temp_compil"))
+TEMPLATES_COMPIL = Path(get_str("TEMPLATES_COMPIL", ".templates"))
+EXPORTS_COMPIL = Path(get_str("EXPORTS_COMPIL", ".exports"))
+
+# 🎨 ANSI Colors
+COLOR_RESET = "\033[0m"
+COLOR_BLUE = "\033[94m"
+COLOR_GREEN = "\033[92m"
+COLOR_YELLOW = "\033[93m"
+COLOR_RED = "\033[91m"
+COLOR_PURPLE = "\033[95m"
+COLOR_CYAN = "\033[96m"

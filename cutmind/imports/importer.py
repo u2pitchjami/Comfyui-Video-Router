@@ -21,8 +21,8 @@ from pathlib import Path
 import shutil
 
 from cutmind.db.repository import CutMindRepository
-from cutmind.imports.validation import analyze_session_validation_db
-from cutmind.models.smartcut_parser import convert_json_to_video, parse_smartcut_json
+from cutmind.models_cm.smartcut_parser import convert_json_to_video, parse_smartcut_json
+from cutmind.validation.validation import analyze_session_validation_db
 from shared.utils.config import JSON_STATES, JSON_VALIDATED, MANUAL_JSON, MIN_CONFIDENCE
 from shared.utils.logger import get_logger
 

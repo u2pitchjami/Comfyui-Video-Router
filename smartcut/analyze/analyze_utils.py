@@ -93,22 +93,14 @@ def compute_num_frames(segment_duration: float, base_rate: int = 5) -> int:
 def merge_keywords_across_batches(batch_outputs: list[AIResult]) -> tuple[str, list[str]]:
     """
     Fusionne plusieurs réponses contenant des descriptions et des mots-clés.
-
-    - Gère les formats :
-        - JSON : {"Description": "...", "Keywords": ["mot1", "mot2", ...]}
-        - Texte brut : "mot1, mot2, mot3"
-    - Supprime les doublons et trie les mots.
-    - Concatène les descriptions de manière lisible.
-
-    Retourne :
-        (description_finale: str, keywords_uniques: list[str])
+    Gère JSON / texte brut, nettoie et limite la taille.
     """
 
     all_keywords: list[str] = []
     all_descriptions = []
 
     for item in batch_outputs:
-        # Si c'est déjà un dictionnaire Python
+        # Si dict déjà parsé
         if isinstance(item, dict):
             if "keywords" in item:
                 all_keywords.extend(item["keywords"])
@@ -117,10 +109,9 @@ def merge_keywords_across_batches(batch_outputs: list[AIResult]) -> tuple[str, l
                 if desc:
                     all_descriptions.append(desc)
 
-        # Si c'est une chaîne
+        # Si chaîne
         elif isinstance(item, str):
             try:
-                # Tente de parser comme JSON
                 parsed = json.loads(item)
                 if "Keywords" in parsed:
                     all_keywords.extend(parsed["Keywords"])
@@ -129,17 +120,32 @@ def merge_keywords_across_batches(batch_outputs: list[AIResult]) -> tuple[str, l
                     if desc:
                         all_descriptions.append(desc)
             except json.JSONDecodeError:
-                # Sinon, traite comme une simple liste de mots séparés par des virgules
                 for kw in item.split(","):
                     clean_kw = kw.strip().lower()
                     if clean_kw:
                         all_keywords.append(clean_kw)
 
-    # Nettoyage et tri
-    unique_keywords = sorted({kw.lower() for kw in all_keywords})
+    # 🧹 Nettoyage, déduplication, tri
+    unique_keywords = sorted({kw.lower().strip() for kw in all_keywords if kw.strip()})
+
+    # 🚧 Sécurité : filtre les anomalies
+    MAX_KEYWORDS = 50  # limite max du nombre de mots-clés
+    MAX_KEYWORD_LEN = 50  # longueur max par mot-clé
+
+    filtered_keywords = [kw for kw in unique_keywords if len(kw) <= MAX_KEYWORD_LEN][:MAX_KEYWORDS]
+
+    # 🧩 Description fusionnée
     merged_description = " ".join(all_descriptions).strip()
 
-    return merged_description, unique_keywords
+    # Log de sécurité (optionnel)
+    if len(unique_keywords) > MAX_KEYWORDS:
+        logger.warning(
+            "⚠️ Trop de mots-clés générés (%d), tronqués à %d",
+            len(unique_keywords),
+            MAX_KEYWORDS,
+        )
+
+    return merged_description, filtered_keywords
 
 
 def delete_frames(path: Path = Path(TMP_FRAMES_DIR_SC)) -> None:

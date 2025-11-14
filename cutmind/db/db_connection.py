@@ -9,7 +9,7 @@ Outils centralisés pour la gestion des connexions MySQL/MariaDB :
   - db_conn() (context manager pratique)
 
 Dépend de :
-  - cutmind.models.db_config (DB_CONFIG)
+  - cutmind.models_cm.db_config (DB_CONFIG)
   - cutmind.utils.logger
 """
 
@@ -23,8 +23,8 @@ import pymysql
 from pymysql.connections import Connection
 from pymysql.cursors import DictCursor
 
-from cutmind.models.cursor_protocol import DictCursorProtocol, TupleCursorProtocol
-from cutmind.models.db_config import DB_CONFIG
+from cutmind.models_cm.cursor_protocol import DictCursorProtocol, TupleCursorProtocol
+from cutmind.models_cm.db_config import DB_CONFIG
 from shared.utils.logger import get_logger
 
 logger = get_logger(__name__)

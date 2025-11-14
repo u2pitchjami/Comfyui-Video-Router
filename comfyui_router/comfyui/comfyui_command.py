@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import requests
 
+from shared.utils.config import HOST_ROOT, VISIBLE_ROOT
 from shared.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def comfyui_path(full_path: Path) -> Path:
+    host_root = Path(HOST_ROOT)
+    visible_root = Path(VISIBLE_ROOT)
+    return visible_root / full_path.relative_to(host_root)
 
 
 def run_comfy(workflow: dict[str, Any]) -> bool:

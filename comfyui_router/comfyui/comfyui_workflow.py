@@ -91,10 +91,10 @@ def inject_video_path(workflow: dict[str, Any], video_path: Path, frames_per_bat
         inputs = node.get("inputs", {})
 
         # 📥 Injection dans VHS_BatchManager
-        if node_type == "easy int":
-            if "value" in inputs:
+        if node_type == "VHS_BatchManager":
+            if "frames_per_batch" in inputs:
                 logger.info(f"✅ Injection frames_per_batch dans node ID {node_id}")
-                inputs["value"] = frames_per_batch
+                inputs["frames_per_batch"] = frames_per_batch
 
         # 📥 Injection dans VHS_LoadVideoPath
         if node_type == "VHS_LoadVideoPath":

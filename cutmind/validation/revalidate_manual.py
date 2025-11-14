@@ -1,5 +1,9 @@
+""" """
+
+from __future__ import annotations
+
 from cutmind.db.repository import CutMindRepository
-from cutmind.imports.validation import analyze_session_validation_db
+from cutmind.validation.validation import analyze_session_validation_db
 from shared.utils.config import MIN_CONFIDENCE
 from shared.utils.logger import get_logger
 

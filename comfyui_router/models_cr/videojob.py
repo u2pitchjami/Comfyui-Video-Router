@@ -18,14 +18,22 @@ logger = get_logger(__name__)
 @dataclass
 class VideoJob:
     path: Path
+    comfyui_path: Path | None = None
     resolution: tuple[int, int] = (0, 0)
+    resolution_out: tuple[int, int] = (0, 0)
     fps_in: float = 0.0
     fps_out: float = 0.0
     nb_frames: int = 0
     nb_frames_batch: int = 70
     has_audio: bool = False
     workflow_path: Path | None = None
+    workflow_name: str | None = None
     output_file: Path | None = None
+
+    def _compute_comfyui_path(self, full_path: Path) -> Path:
+        COMFYUI_HOST_ROOT = Path("/basedir/comfyui-nvidia")
+        COMFYUI_VISIBLE_ROOT = Path("/basedir")
+        return COMFYUI_VISIBLE_ROOT / full_path.relative_to(COMFYUI_HOST_ROOT)
 
     def analyze(self) -> None:
         """

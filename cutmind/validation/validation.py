@@ -22,10 +22,14 @@ from __future__ import annotations
 
 from typing import Any
 
+from cutmind.categ.categorization import match_category
 from cutmind.db.repository import CutMindRepository
-from cutmind.models.db_models import Video
+from cutmind.models_cm.db_models import Video
 from cutmind.process.file_mover import CUTMIND_BASEDIR, FileMover, sanitize
+from shared.utils.config import OUPUT_DIR_SC
 from shared.utils.logger import get_logger
+from shared.utils.remove_empty_dirs import remove_empty_dirs
+from smartcut.analyze.analyze_from_cutmind import analyze_from_cutmind
 
 logger = get_logger(__name__)
 
@@ -49,12 +53,15 @@ def analyze_session_validation_db(video: Video, min_confidence: float = 0.45) ->
 
     # --- Analyse en mémoire ---
     for seg in video.segments:
+        if not seg.description and not seg.confidence and not seg.keywords:
+            seg.description, seg.keywords = analyze_from_cutmind(seg)
         desc_ok = bool(seg.description and seg.description.strip().lower() not in ("none", ""))
         conf_ok = (seg.confidence or 0.0) >= min_confidence
         kw_ok = bool(seg.keywords and len(seg.keywords) > 0)
 
         if desc_ok and conf_ok and kw_ok:
             seg.status = "validated"
+            seg.category = match_category(seg.keywords)
             if seg.source_flow == "manual_review":
                 logger.info("♻️ Segment re-validé automatiquement : %s", seg.uid)
                 seg.source_flow = "manual_validation"
@@ -129,6 +136,7 @@ def analyze_session_validation_db(video: Video, min_confidence: float = 0.45) ->
         repo.update_video(video)
 
     logger.info("✅ Auto-validation + déplacement : %s (%d segments)", video.name, valid_count)
+    remove_empty_dirs(root_path=OUPUT_DIR_SC)
 
     return {
         "uid": video.uid,

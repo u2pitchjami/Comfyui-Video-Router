@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from cutmind.models.cursor_protocol import DictCursorProtocol, TupleCursorProtocol
+from cutmind.models_cm.cursor_protocol import DictCursorProtocol, TupleCursorProtocol
 from shared.utils.logger import get_logger
 
 logger = get_logger(__name__)
