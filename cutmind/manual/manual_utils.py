@@ -18,7 +18,7 @@ from typing import Any
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 NULL_EQUIVALENTS = {"", "null", "none", "nan", "n/a"}
 

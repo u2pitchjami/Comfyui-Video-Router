@@ -8,7 +8,7 @@ import shutil
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Shared")
 
 
 def delete_files(path: Path, ext: str = "*.jpg") -> None:

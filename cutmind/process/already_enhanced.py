@@ -5,15 +5,15 @@ from pathlib import Path
 from shutil import copy2
 
 from comfyui_router.ffmpeg.deinterlace import ensure_deinterlaced
-from comfyui_router.ffmpeg.ffmpeg_command import detect_nvenc_available
 from comfyui_router.ffmpeg.smart_recut_hybrid import smart_recut_hybrid
 from cutmind.db.repository import CutMindRepository
 from cutmind.process.file_mover import FileMover
+from shared.ffmpeg.ffmpeg_utils import detect_nvenc_available
 from shared.models.config_manager import CONFIG
 from shared.utils.config import WORKDIR_CM
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 WORKDIR_CM = WORKDIR_CM
 CLEANUP = CONFIG.comfyui_router["processor"]["cleanup"]

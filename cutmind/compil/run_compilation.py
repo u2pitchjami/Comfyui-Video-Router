@@ -1,14 +1,14 @@
 import argparse
 from pathlib import Path
 
+from cutmind.compil.compilation_builder import make_compilation
+from cutmind.compil.segment_selector import select_segments_for_block
 from cutmind.db.repository import CutMindRepository
 from cutmind.models_cm.compilation_template import load_template
-from cutmind.process.compilation_builder import make_compilation
-from cutmind.process.segment_selector import select_segments_for_block
 from shared.utils.config import EXPORTS_COMPIL
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

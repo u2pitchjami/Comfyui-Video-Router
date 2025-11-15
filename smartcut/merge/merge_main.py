@@ -7,7 +7,7 @@ from shared.utils.logger import get_logger
 from smartcut.merge.merge_core import merge_similar_segments_optimized_v2
 from smartcut.models_sc.smartcut_model import SmartCutSession
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 THRESHOLD = CONFIG.smartcut["merge"]["threshold"]
 RATTRAPAGE = CONFIG.smartcut["merge"]["rattrapage"]

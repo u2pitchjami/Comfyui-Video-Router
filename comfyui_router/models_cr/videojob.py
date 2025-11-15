@@ -8,11 +8,12 @@ from pathlib import Path
 import psutil
 
 from comfyui_router.comfyui.comfyui_workflow import optimal_batch_size
-from comfyui_router.ffmpeg.ffmpeg_command import get_fps, get_resolution, get_total_frames, video_has_audio
+from comfyui_router.ffmpeg.ffmpeg_command import get_total_frames, video_has_audio
+from shared.ffmpeg.ffmpeg_utils import get_fps, get_resolution
 from shared.models.config_manager import CONFIG
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 
 @dataclass

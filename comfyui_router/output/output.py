@@ -8,7 +8,7 @@ import time
 from shared.utils.config import OUTPUT_DIR
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 
 def wait_for_output_v2(

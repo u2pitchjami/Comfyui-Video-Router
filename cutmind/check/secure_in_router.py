@@ -5,7 +5,7 @@ from datetime import datetime
 from cutmind.db.repository import CutMindRepository
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def check_secure_in_router() -> None:

@@ -14,7 +14,7 @@ from smartcut.models_sc.ai_result import AIResult
 from smartcut.models_sc.smartcut_model import SmartCutSession
 from smartcut.norm_keywords.keyword_normalizer import KeywordNormalizer
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 QBIT = CONFIG.smartcut["analyse_segment"]["4bit"]
 BFLOAT16 = CONFIG.smartcut["analyse_segment"]["bfloat16"]

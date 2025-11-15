@@ -11,7 +11,7 @@ import yaml
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Shared")
 
 YamlDict = dict[str, Any]
 

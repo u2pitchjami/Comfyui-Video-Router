@@ -20,7 +20,7 @@ from shared.utils.logger import get_logger
 from smartcut.gen_keywords.gen_frames import load_frames_as_tensor, temp_batch_image
 from smartcut.models_sc.ai_result import AIResult
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 MAX_NEW_TOKENS = CONFIG.smartcut["generate_keywords"]["max_new_tokens"]
 MIN_PIXELS = CONFIG.smartcut["generate_keywords"]["min_pixels"]

@@ -9,7 +9,7 @@ from shared.utils.logger import get_logger
 from smartcut.merge.merge_utils import keyword_similarity
 from smartcut.models_sc.smartcut_model import Segment
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def merge_similar_segments_optimized_v2(

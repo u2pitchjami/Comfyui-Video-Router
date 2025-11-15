@@ -13,7 +13,7 @@ from shared.models.config_manager import CONFIG
 from shared.utils.config import KW_CACHE_FILE_SC, KW_FORBIDDEN_FILE_SC, KW_MAPPING_FILE_SC
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 MODEL_NAME = CONFIG.smartcut["keyword_normalizer"]["model_name_key"]
 MODE = CONFIG.smartcut["keyword_normalizer"]["mode"]

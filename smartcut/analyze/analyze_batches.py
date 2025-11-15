@@ -20,7 +20,7 @@ from smartcut.analyze.analyze_utils import (
 from smartcut.gen_keywords.main_gen_keywords import generate_keywords_for_segment
 from smartcut.models_sc.ai_result import AIResult
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 KeywordsBatches = list[AIResult]
 

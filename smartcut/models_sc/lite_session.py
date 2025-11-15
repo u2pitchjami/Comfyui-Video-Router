@@ -25,7 +25,7 @@ from shared.utils.config import JSON_STATES_DIR_SC
 from shared.utils.logger import get_logger
 from smartcut.models_sc.smartcut_model import Segment, SmartCutSession  # ton modèle actuel
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 class SmartCutLiteSession(SmartCutSession):

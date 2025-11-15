@@ -3,7 +3,7 @@ from pathlib import Path
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Shared")
 
 
 def remove_empty_dirs(root_path: str | Path, dry_run: bool = False) -> int:

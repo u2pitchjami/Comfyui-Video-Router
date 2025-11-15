@@ -6,7 +6,7 @@ from scenedetect import ContentDetector, FrameTimecode, SceneManager, open_video
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def detect_scenes_with_pyscenedetect(

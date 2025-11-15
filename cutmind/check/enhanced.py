@@ -9,7 +9,7 @@ from cutmind.categ.categorization import match_category
 from cutmind.db.repository import CutMindRepository
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def check_enhanced_segments(max_videos: int = 10) -> None:

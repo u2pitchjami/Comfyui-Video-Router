@@ -10,7 +10,7 @@ from shared.utils.config import OUPUT_DIR_SC
 from shared.utils.logger import get_logger
 from smartcut.models_sc.lite_session import SmartCutLiteSession
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def relocate_and_rename_segments(session: SmartCutLiteSession, output_dir: Path = OUPUT_DIR_SC) -> None:

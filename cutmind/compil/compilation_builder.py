@@ -7,7 +7,7 @@ from cutmind.models_cm.db_models import Segment
 from shared.utils.config import EXPORTS_COMPIL, TEMP_COMPIL
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def make_compilation(

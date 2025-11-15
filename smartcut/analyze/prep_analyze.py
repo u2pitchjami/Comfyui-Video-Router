@@ -12,7 +12,7 @@ from smartcut.analyze.analyze_utils import (
 )
 from smartcut.models_sc.ai_result import AIResult
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 KeywordsBatches = list[AIResult]

@@ -18,7 +18,7 @@ from smartcut.analyze.prep_analyze import cleanup_temp, open_vid, release_cap
 from smartcut.gen_keywords.load_model import load_and_batches
 from smartcut.models_sc.smartcut_model import SmartCutSession
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 # ===========================================================

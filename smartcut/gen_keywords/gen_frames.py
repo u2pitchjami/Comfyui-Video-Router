@@ -12,7 +12,7 @@ import torch
 from shared.utils.config import MULTIPLE_FRAMES_DIR_SC
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def load_frames_as_tensor(

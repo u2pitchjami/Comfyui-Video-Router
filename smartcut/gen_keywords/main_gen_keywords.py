@@ -13,7 +13,7 @@ from shared.utils.logger import get_logger
 from smartcut.gen_keywords.generate_keywords import generate_keywords_from_frames
 from smartcut.models_sc.ai_result import AIResult
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def generate_keywords_for_segment(

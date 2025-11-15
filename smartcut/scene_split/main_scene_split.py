@@ -15,7 +15,7 @@ from smartcut.scene_split.pyscenedetect import (
 )
 from smartcut.scene_split.split_utils import move_to_error
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def adaptive_scene_split(

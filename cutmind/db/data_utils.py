@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def format_resolution(res: tuple[int, int] | None) -> str | None:

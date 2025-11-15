@@ -7,34 +7,14 @@ import re
 import shutil
 import subprocess
 
+from shared.ffmpeg.ffmpeg_utils import get_duration
 from shared.utils.config import TRASH_DIR
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 RE_PTS_TIME = re.compile(r"pts_time[:=](\d+(?:\.\d+)?)")
 RE_SCENE_SCORE = re.compile(r"(?:lavfi\.)?scene_score=(\d+(?:\.\d+)?)")
-
-
-def get_duration(video_path: Path) -> float:
-    """
-    Retourne la durée de la vidéo en secondes via ffprobe.
-    """
-    cmd: list[str] = [
-        "ffprobe",
-        "-v",
-        "error",
-        "-show_entries",
-        "format=duration",
-        "-of",
-        "default=noprint_wrappers=1:nokey=1",
-        str(video_path),
-    ]
-    try:
-        output = subprocess.check_output(cmd).decode().strip()
-        return float(output)
-    except Exception:
-        return 0.0
 
 
 def detect_scene_changes_with_scores(video_path: Path, threshold: float = 0.005) -> list[tuple[float, float]]:

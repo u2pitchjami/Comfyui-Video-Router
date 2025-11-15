@@ -10,7 +10,7 @@ from cutmind.manual.manual_utils import compare_segment, keywords_to_list_from_s
 from cutmind.models_cm.cursor_protocol import DictCursorProtocol
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def get_current_segment_data(cur: DictCursorProtocol, seg_id: int) -> dict[str, Any]:

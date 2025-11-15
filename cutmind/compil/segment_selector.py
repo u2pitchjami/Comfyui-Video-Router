@@ -7,7 +7,7 @@ from cutmind.models_cm.compilation_template import CompilationBlock
 from cutmind.models_cm.db_models import Segment
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def select_segments_for_block(block: CompilationBlock, repo: CutMindRepository) -> list[Segment]:

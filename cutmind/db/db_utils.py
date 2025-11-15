@@ -16,7 +16,7 @@ from typing import Any
 from cutmind.models_cm.cursor_protocol import DictCursorProtocol, TupleCursorProtocol
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 ParamsType = tuple[Any, ...] | dict[str, Any]
 

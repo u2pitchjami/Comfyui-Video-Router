@@ -192,7 +192,7 @@ def _ensure_handlers(base: logging.Logger, global_log_file: str, script_log_file
     # Évite double impression si root a des handlers
     base.propagate = False
 
-    setattr(base, "_brainops_configured", True)
+    setattr(base, "_cutmind_configured", True)
 
 
 def get_logger(script_name: str) -> LoggerProtocol:
@@ -207,7 +207,7 @@ def get_logger(script_name: str) -> LoggerProtocol:
     """
     os.makedirs(LOG_FILE_PATH, exist_ok=True)
     # date_str = datetime.now().strftime("%Y-%m-%d")
-    global_log_file = os.path.join(LOG_FILE_PATH, "Comfyui Router.log")
+    global_log_file = os.path.join(LOG_FILE_PATH, "CutMind.log")
     script_log_file = os.path.join(LOG_FILE_PATH, f"{script_name}.log")
 
     try:

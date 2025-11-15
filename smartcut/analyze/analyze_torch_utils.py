@@ -12,7 +12,7 @@ from transformers import (
 from shared.models.config_manager import CONFIG
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 LIMIT_TOKENS = CONFIG.smartcut["analyse_segment"]["limit_tokens"]
 

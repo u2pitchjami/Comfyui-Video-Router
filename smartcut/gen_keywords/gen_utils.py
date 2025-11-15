@@ -6,7 +6,7 @@ import torch
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def get_free_vram_gb() -> float:

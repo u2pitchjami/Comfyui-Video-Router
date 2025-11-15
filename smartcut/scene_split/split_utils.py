@@ -11,7 +11,7 @@ import shutil
 from shared.utils.config import OUPUT_DIR_SC
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def move_to_error(file_path: Path, error_root: Path) -> Path:

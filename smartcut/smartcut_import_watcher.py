@@ -29,7 +29,7 @@ USE_CUDA = CONFIG.smartcut["smartcut"]["use_cuda"]
 
 # --- Initialisation logger ---
 
-logger = get_logger("smartcut_watcher")
+logger = get_logger("SmartCut")
 
 
 # --- Nettoyage automatique GPU au démarrage ---

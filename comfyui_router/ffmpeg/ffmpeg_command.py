@@ -6,9 +6,10 @@ import json
 from pathlib import Path
 import subprocess
 
+from shared.ffmpeg.ffmpeg_utils import detect_nvenc_available
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 
 def get_total_frames(video_path: Path) -> int:
@@ -77,68 +78,6 @@ def video_has_audio(video_path: Path) -> bool:
         return bool(result.stdout.strip())
     except Exception as e:
         logger.error(f"⚠️ Erreur ffprobe : {e}")
-        return False
-
-
-def get_resolution(filepath: Path) -> tuple[int, int]:
-    """
-    Retourne la largeur et hauteur de la vidéo via ffprobe.
-    """
-    try:
-        cmd = [
-            "ffprobe",
-            "-v",
-            "error",
-            "-select_streams",
-            "v:0",
-            "-show_entries",
-            "stream=width,height",
-            "-of",
-            "json",
-            str(filepath),
-        ]
-        result = subprocess.check_output(cmd)
-        info = json.loads(result)
-        w = info["streams"][0]["width"]
-        h = info["streams"][0]["height"]
-        return w, h
-    except Exception:
-        return 0, 0
-
-
-def get_fps(filepath: Path) -> float:
-    """
-    Retourne le framerate de la vidéo.
-    """
-    try:
-        cmd = [
-            "ffprobe",
-            "-v",
-            "error",
-            "-select_streams",
-            "v:0",
-            "-show_entries",
-            "stream=r_frame_rate",
-            "-of",
-            "default=noprint_wrappers=1:nokey=1",
-            str(filepath),
-        ]
-        output = subprocess.check_output(cmd).decode().strip()
-        num, den = map(int, output.split("/"))
-        return num / den if den else float(num)
-    except Exception:
-        return 0.0
-
-
-def detect_nvenc_available() -> bool:
-    """
-    Vérifie si l'encodeur NVIDIA NVENC (hevc_nvenc) est disponible.
-    """
-    try:
-        result = subprocess.run(["ffmpeg", "-hide_banner", "-encoders"], capture_output=True, text=True, check=True)
-        return "hevc_nvenc" in result.stdout
-    except subprocess.CalledProcessError:
-        logger.warning("⚠️ Impossible de détecter les encodeurs FFmpeg.")
         return False
 
 

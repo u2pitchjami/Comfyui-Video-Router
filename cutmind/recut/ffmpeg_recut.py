@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import subprocess
 
-from smartcut.ffsmartcut.ffsmartcut import get_duration
+from shared.ffmpeg.ffmpeg_utils import get_duration
 
 
 def ffmpeg_recut_video(input_path: Path, recut_points: list[float], output_dir: Path) -> list[Path]:

@@ -9,7 +9,7 @@ from comfyui_router.output.output import wait_for_output_v2
 from shared.models.config_manager import CONFIG
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 STABLE_TIME = CONFIG.comfyui_router["wait_for_output"]["stable_time"]
 CHECK_INTERVAL = CONFIG.comfyui_router["wait_for_output"]["check_interval"]

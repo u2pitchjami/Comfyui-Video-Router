@@ -31,7 +31,7 @@ from shared.utils.config import CSV_LOG_PATH, MANUAL_CSV_PATH, TRASH_DIR_SC
 from shared.utils.logger import get_logger
 from shared.utils.trash import move_to_trash
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def update_segments_csv(manual_csv: Path = Path(MANUAL_CSV_PATH), csv_log: Path = Path(CSV_LOG_PATH)) -> None:

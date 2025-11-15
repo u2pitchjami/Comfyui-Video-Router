@@ -10,7 +10,7 @@ from shared.utils.config import TMP_FRAMES_DIR_SC
 from shared.utils.logger import get_logger
 from smartcut.analyze.analyze_utils import compute_num_frames
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def extract_segment_frames(

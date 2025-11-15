@@ -14,7 +14,7 @@ from comfyui_router.models_cr.videojob import VideoJob
 from shared.models.config_manager import CONFIG
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 MIN_SIZE = CONFIG.comfyui_router["optimal_batch_size"]["min_size"]
 

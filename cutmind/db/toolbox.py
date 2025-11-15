@@ -30,7 +30,7 @@ from cutmind.db.db_connection import db_conn, get_dict_cursor
 from cutmind.db.db_utils import safe_execute_dict
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 # ---------------------------------------------------------------------------

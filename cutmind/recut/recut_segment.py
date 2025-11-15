@@ -17,7 +17,7 @@ from shared.utils.config import TRASH_DIR_SC
 from shared.utils.logger import get_logger
 from shared.utils.trash import move_to_trash
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def perform_recut(cur: DictCursorProtocol, seg_id: int, recut_points: list[float]) -> None:

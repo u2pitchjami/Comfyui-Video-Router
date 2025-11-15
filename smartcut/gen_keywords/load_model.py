@@ -25,7 +25,7 @@ from smartcut.analyze.analyze_utils import (
 )
 from smartcut.gen_keywords.gen_utils import get_free_vram_gb
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 SAFETY_MARGIN: float = CONFIG.smartcut["analyse_segment"]["safety_margin_gb"]
 

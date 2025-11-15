@@ -9,7 +9,7 @@ from shared.utils.logger import get_logger
 from smartcut.analyze.analyze_core import analyze_by_segments
 from smartcut.models_sc.smartcut_model import SmartCutSession
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 FPS_EXTRACT = CONFIG.smartcut["analyse_segment"]["fps_extract"]
 BASE_RATE = CONFIG.smartcut["analyse_segment"]["base_rate"]

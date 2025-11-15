@@ -22,7 +22,7 @@ from shared.utils.config import CM_NB_VID_ROUTER, COLOR_RED, COLOR_RESET, INPUT_
 from shared.utils.logger import get_logger
 from shared.utils.trash import delete_files
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 forbidden_hours = CONFIG.comfyui_router["orchestrator"].get("router_forbidden_hours", [])
 

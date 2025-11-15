@@ -27,7 +27,7 @@ from cutmind.models_cm.cursor_protocol import DictCursorProtocol
 from cutmind.models_cm.db_models import Segment, Video
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 # =====================================================================

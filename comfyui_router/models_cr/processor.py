@@ -9,7 +9,7 @@ from pymediainfo import MediaInfo
 
 from comfyui_router.comfyui.comfyui_command import comfyui_path
 from comfyui_router.ffmpeg.deinterlace import ensure_deinterlaced
-from comfyui_router.ffmpeg.ffmpeg_command import convert_to_60fps, detect_nvenc_available, get_fps, get_resolution
+from comfyui_router.ffmpeg.ffmpeg_command import convert_to_60fps
 from comfyui_router.ffmpeg.smart_recut_hybrid import smart_recut_hybrid
 from comfyui_router.models_cr.comfy_workflow_manager import ComfyWorkflowManager
 from comfyui_router.models_cr.output_manager import OutputManager
@@ -18,12 +18,13 @@ from comfyui_router.output.output import cleanup_outputs
 from cutmind.db.data_utils import format_resolution
 from cutmind.db.repository import CutMindRepository
 from cutmind.process.file_mover import FileMover
+from shared.ffmpeg.ffmpeg_utils import detect_nvenc_available, get_fps, get_resolution
 from shared.models.config_manager import CONFIG
 from shared.utils.config import OK_DIR, OUTPUT_DIR, TRASH_DIR
 from shared.utils.logger import get_logger
 from shared.utils.trash import move_to_trash, purge_old_trash
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 
 FORCE_DEINTERLACE = CONFIG.comfyui_router["processor"]["force_deinterlace"]

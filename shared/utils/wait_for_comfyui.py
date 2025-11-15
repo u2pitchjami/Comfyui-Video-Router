@@ -6,7 +6,7 @@ from requests.exceptions import RequestException
 from shared.utils.config import COMFYUI_URL
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Shared")
 
 TIMEOUT = 120  # ⏱️ délai max d'attente en secondes
 RETRY_INTERVAL = 5  # 🕔 pause entre chaque tentative

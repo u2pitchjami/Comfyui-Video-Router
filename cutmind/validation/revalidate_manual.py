@@ -7,7 +7,7 @@ from cutmind.validation.validation import analyze_session_validation_db
 from shared.utils.config import MIN_CONFIDENCE
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def revalidate_manual_videos(min_confidence: float = MIN_CONFIDENCE) -> None:

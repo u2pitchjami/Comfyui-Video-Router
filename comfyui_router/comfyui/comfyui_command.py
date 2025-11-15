@@ -10,7 +10,7 @@ import requests
 from shared.utils.config import HOST_ROOT, VISIBLE_ROOT
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 
 def comfyui_path(full_path: Path) -> Path:

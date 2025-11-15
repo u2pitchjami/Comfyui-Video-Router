@@ -17,6 +17,7 @@ from datetime import datetime
 from pathlib import Path
 import uuid
 
+from shared.ffmpeg.ffmpeg_utils import get_duration
 from shared.models.config_manager import CONFIG
 from shared.utils.config import JSON_STATES_DIR_SC, TRASH_DIR_SC
 from shared.utils.logger import get_logger
@@ -25,12 +26,12 @@ from shared.utils.trash import move_to_trash, purge_old_trash
 from smartcut.analyze.analyze_confidence import compute_confidence
 from smartcut.analyze.analyze_utils import extract_keywords_from_filename
 from smartcut.analyze.main_analyze import analyze_video_segments
-from smartcut.ffsmartcut.ffsmartcut import cut_video, ensure_safe_video_format, get_duration
+from smartcut.ffsmartcut.ffsmartcut import cut_video, ensure_safe_video_format
 from smartcut.merge.merge_main import process_result
 from smartcut.models_sc.smartcut_model import Segment, SmartCutSession
 from smartcut.scene_split.main_scene_split import adaptive_scene_split
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 PURGE_DAYS = CONFIG.smartcut["smartcut"]["purge_days"]
 USE_CUDA = CONFIG.smartcut["smartcut"]["use_cuda"]

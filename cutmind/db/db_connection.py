@@ -27,7 +27,7 @@ from cutmind.models_cm.cursor_protocol import DictCursorProtocol, TupleCursorPro
 from cutmind.models_cm.db_config import DB_CONFIG
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 # -------------------------------------------------------------------

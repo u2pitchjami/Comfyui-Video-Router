@@ -22,7 +22,7 @@ from smartcut.analyze.main_analyze import analyze_video_segments
 from smartcut.lite.relocate_and_rename_segments import relocate_and_rename_segments
 from smartcut.models_sc.lite_session import SmartCutLiteSession
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 FRAME_PER_SEGMENT = CONFIG.smartcut["smartcut"]["frame_per_segment"]
 AUTO_FRAMES = CONFIG.smartcut["smartcut"]["auto_frames"]

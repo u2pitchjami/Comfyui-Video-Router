@@ -6,7 +6,7 @@ import re
 
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 def clean(text: str) -> list[str]:

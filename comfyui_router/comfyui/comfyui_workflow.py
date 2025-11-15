@@ -6,11 +6,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-from comfyui_router.ffmpeg.ffmpeg_command import get_fps, get_resolution
+from shared.ffmpeg.ffmpeg_utils import get_fps, get_resolution
 from shared.utils.config import WORKFLOW_MAP
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("Comfyui Router")
 
 
 def route_workflow(video_path: Path) -> Path | None:

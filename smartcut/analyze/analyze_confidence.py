@@ -13,7 +13,7 @@ import torch
 from shared.models.config_manager import CONFIG
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 MODEL_CONFIDENCE: str = CONFIG.smartcut["analyse_confidence"]["model_confidence"]
 DEVICE: str = CONFIG.smartcut["analyse_confidence"]["device"]

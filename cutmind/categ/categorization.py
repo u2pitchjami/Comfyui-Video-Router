@@ -8,7 +8,7 @@ import yaml
 from shared.utils.config import CATEGORIES_RULES
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 class CategoryRule(TypedDict, total=False):

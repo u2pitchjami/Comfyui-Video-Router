@@ -14,7 +14,7 @@ from cutmind.models_cm.db_models import Video
 from shared.utils.config import CUTMIND_BASEDIR
 from shared.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 def sanitize(name: str) -> str:

@@ -15,37 +15,13 @@ from shared.utils.config import SAFE_FORMATS
 from shared.utils.logger import get_logger
 from smartcut.models_sc.smartcut_model import SmartCutSession
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 PRESET = CONFIG.smartcut["ffsmartcut"]["preset"]
 RC = CONFIG.smartcut["ffsmartcut"]["rc"]
 CQ = CONFIG.smartcut["ffsmartcut"]["cq"]
 PIX_FMT = CONFIG.smartcut["ffsmartcut"]["pix_fmt"]
 VCODEC = CONFIG.smartcut["ffsmartcut"]["vcodec"]
-
-# ========== Utils FFprobe/FFmpeg ==========
-
-
-def get_duration(video_path: Path) -> float:
-    """
-    Retourne la durée en secondes (0.0 si échec).
-    """
-    cmd: list[str] = [
-        "ffprobe",
-        "-v",
-        "error",
-        "-show_entries",
-        "format=duration",
-        "-of",
-        "default=noprint_wrappers=1:nokey=1",
-        str(video_path),
-    ]
-    try:
-        out = subprocess.check_output(cmd).decode().strip()
-        return float(out)
-    except Exception as exc:  # pylint: disable=broad-except
-        logger.error("ffprobe duration error: %s", exc)
-        return 0.0
 
 
 def cut_video(

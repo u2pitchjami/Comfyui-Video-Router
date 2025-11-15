@@ -4,6 +4,7 @@ from pathlib import Path
 
 from cutmind.db.repository import CutMindRepository
 from cutmind.models_cm.db_models import Segment
+from shared.ffmpeg.ffmpeg_utils import get_duration
 from shared.utils.logger import get_logger
 from smartcut.analyze.analyze_batches import process_batches
 from smartcut.analyze.analyze_torch_utils import (
@@ -14,10 +15,9 @@ from smartcut.analyze.analyze_utils import (
 )
 from smartcut.analyze.extract_frames import extract_segment_frames
 from smartcut.analyze.prep_analyze import cleanup_temp, open_vid, release_cap
-from smartcut.ffsmartcut.ffsmartcut import get_duration
 from smartcut.gen_keywords.load_model import load_and_batches
 
-logger = get_logger(__name__)
+logger = get_logger("SmartCut")
 
 
 # ===========================================================

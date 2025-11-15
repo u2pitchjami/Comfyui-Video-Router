@@ -31,7 +31,7 @@ from shared.utils.logger import get_logger
 from shared.utils.remove_empty_dirs import remove_empty_dirs
 from smartcut.analyze.analyze_from_cutmind import analyze_from_cutmind
 
-logger = get_logger(__name__)
+logger = get_logger("CutMind")
 
 
 # =====================================================================
